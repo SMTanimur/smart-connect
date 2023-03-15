@@ -19,6 +19,7 @@ type RightbarProps = {
 };
 
 const Rightbar: React.FC<RightbarProps> = ({ user, socket }) => {
+  console.log(user)
   const [friends, setFriends] = useState<IUser[]>([]);
   const { user: currentUser } = useAppSelector((state) => state.user);
   const navigate = useNavigate();

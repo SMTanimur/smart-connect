@@ -87,23 +87,22 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchFriends = async () => {
+  return await axios.get('/users/' + userId)
+  }
+
   useEffect(() => {
-     async () => {
-      try {
-        const { data } = await axios.get('/users/' + userId);
-        setUser(data);
-        setProfileData({
-          ...profileData,
-          username: data.username,
-          desc: data.desc,
-        });
-      } catch (error) {
-        console.log(error);
-        navigate('/');
-      }
-    };
-    
-  }, [userId, navigate, setProfileData, profileData,]);
+   fetchFriends().then(({data})=>{
+    setUser(data);
+    setProfileData({
+      ...profileData,
+      username: data.username,
+      desc: data.desc,
+    });
+   })
+ 
+  }, [userId, refetch, setProfileData, profileData, fetchFriends]);
   return (
     <>
       <div className='flex w-full md:w-[70%] mx-auto'>
