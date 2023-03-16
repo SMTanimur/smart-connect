@@ -12,6 +12,8 @@ import { useProfileInfoContext } from '../context';
 import { Socket } from 'socket.io-client';
 import { ServerToClientEvents, ClientToServerEvents } from '../interfaces';
 import { createRipple } from '../config/createRipple';
+import { useGetUser } from '../hooks/useGetUser';
+import { useQueryClient } from '@tanstack/react-query';
 
 type ProfileProps = {
   socket: React.MutableRefObject<Socket<
@@ -24,17 +26,15 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
   const { userId } = useParams();
   const { user: currentUser } = useAppSelector(state => state.user);
   const [user, setUser] = useState({} as IUser);
-  const {
-    refetch,
-    setRefetch,
-    isEdit,
-    setIsEdit,
-    profileData,
-    setProfileData,
-    handleChange,
-  } = useProfileInfoContext();
+  const { isEdit, setIsEdit, handleChange } = useProfileInfoContext();
 
   const dispatch = useDispatch();
+
+  const { data } = useGetUser(userId as string);
+  const profileData = data?.data;
+  console.log(profileData)
+
+  const queryClient = useQueryClient();
 
   const navigate = useNavigate();
 
@@ -63,7 +63,7 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
             [photo]: url,
           });
           dispatch(updateUser(data));
-          setRefetch(!refetch);
+          queryClient.invalidateQueries(['user']);
         } catch (error) {
           console.log(error);
         }
@@ -81,28 +81,19 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
       });
       dispatch(updateUser(data));
       setIsEdit(false);
-      setRefetch(!refetch);
+      // setRefetch(!refetch);
     } catch (error) {
       console.log(error);
     }
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchFriends = async () => {
-  return await axios.get('/users/' + userId)
-  }
 
   useEffect(() => {
-   fetchFriends().then(({data})=>{
-    setUser(data);
-    setProfileData({
-      ...profileData,
-      username: data.username,
-      desc: data.desc,
-    });
-   })
- 
-  }, [userId, refetch, setProfileData, profileData, fetchFriends]);
+    if (profileData) {
+      setUser(profileData);
+    }
+  }, [profileData]);
   return (
     <>
       <div className='flex w-full md:w-[70%] mx-auto'>
@@ -120,8 +111,8 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
                   className='profile__cover--image'
                   alt='cover'
                   src={
-                    user?.coverPicture
-                      ? user?.coverPicture
+                    profileData?.coverPicture
+                      ? profileData?.coverPicture
                       : 'https://res.cloudinary.com/dxf7urmsh/image/upload/v1659264833/16588370472353_vy1sjr.jpg'
                   }
                 />
@@ -146,9 +137,7 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
                 <img
                   className=''
                   src={
-                    user?.profilePicture
-                      ? user?.profilePicture
-                      : 'https://res.cloudinary.com/dxf7urmsh/image/upload/v1663824680/dquestion_app_widget_1_b_axtw5v.png'
+                    profileData?.profilePicture || ''
                   }
                   alt='user'
                 />
@@ -216,7 +205,7 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
           </div>
           <div className='flex px-2 md:px-0'>
             <Feed profile userId={userId} socket={socket} />
-            <Rightbar user={user} socket={socket} />
+            <Rightbar user={profileData} socket={socket} />
           </div>
         </div>
       </div>
