@@ -24,8 +24,8 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import sound from './sounds/notification.mp3';
 import axios from 'axios';
 
-// axios.defaults.baseURL = 'https://smart-connect-api.onrender.com/api';
-axios.defaults.baseURL = 'http://localhost:5000/api';
+axios.defaults.baseURL = 'https://smart-connect-api.onrender.com/api';
+// axios.defaults.baseURL = 'http://localhost:5000/api';
 axios.defaults.withCredentials = true;
 
 const App = () => {
@@ -46,7 +46,7 @@ const App = () => {
 
   useEffect(() => {
     if (user) {
-      socket.current = io('http://localhost:5000/');
+      socket.current = io('https://smart-connect-api.onrender.com');
       socket?.current?.emit('addUser', user?._id);
       socket?.current?.on('getUsers', users => {
         dispatch(setOnlineUsers(users));

@@ -8,6 +8,8 @@ import axios from 'axios';
 import { ClientToServerEvents, ServerToClientEvents } from '../interfaces';
 import { Socket } from 'socket.io-client';
 import ClockLoader from 'react-spinners/ClockLoader';
+import { useUserPosts } from '../hooks/useUserPosts';
+import { useUserTimeline } from '../hooks/useUserTimeline';
 
 type FeedProps = {
   profile?: boolean;
@@ -20,38 +22,35 @@ type FeedProps = {
 };
 
 const Feed: React.FC<FeedProps> = ({ profile, userId, scrollable, socket }) => {
-  const { user } = useAppSelector((state) => state.user);
-  const { posts, numberOfPages } = useAppSelector((state) => state.posts);
-  const [loading, setLoading] = useState(false);
+  const { user } = useAppSelector(state => state.user);
+  const { posts, numberOfPages } = useAppSelector(state => state.posts);
+
   const dispatch = useAppDispatch();
   const query = useQuery();
   const page = query.get('page') || 1;
 
   const [currentPage, setCurrentPage] = useState(+page);
-
+  const { data: PostData, isLoading: PostLoading } = useUserPosts(user._id);
+  const { data: Timeline, isLoading: TimeLineLoading } = useUserTimeline(
+    user,
+    page as number
+  );
+  console.log(Timeline?.data?.posts);
+  console.log(PostData);
   useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      try {
-        const { data } = await axios.get(
+    if (profile) {
+      dispatch(init(PostData?.data));
+    } else {
+      dispatch(init(Timeline?.data?.posts));
+      dispatch(
+        setNumberOfPages(
           profile
-            ? `/posts/all/${userId}`
-            : `/posts/timeline/?userId=${user?._id}&page=${page}`
-        );
-        if (profile) {
-          dispatch(init(data));
-        } else {
-          dispatch(init(data.posts));
-          dispatch(setNumberOfPages(data.numberOfPages));
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-      }
-    };
-    fetchPosts();
-  }, [userId, profile, dispatch, user, page]);
+            ? PostData?.data?.numberOfPages
+            : Timeline?.data?.numberOfPages
+        )
+      );
+    }
+  }, []);
 
   const handleScroll = async (e: any) => {
     let triggerHeight = e.target.scrollTop + e.target.offsetHeight;
@@ -79,13 +78,13 @@ const Feed: React.FC<FeedProps> = ({ profile, userId, scrollable, socket }) => {
     >
       <div className={`py-4 ${!profile && 'pl-4 pr-2'} ${profile && 'pt-0'}`}>
         {!profile && <Share />}
-        {/* {user._id === userId && <Share />} */}
+        {user._id === userId && <Share />}
 
-        <div className="posts__container">
-          {loading ? (
-            <ClockLoader className="mx-auto" color="#555" />
+        <div className='posts__container'>
+          {PostLoading || TimeLineLoading ? (
+            <ClockLoader className='mx-auto' color='#555' />
           ) : (
-            posts.map((p) => <Post key={p?._id} post={p} socket={socket} />)
+            Timeline?.data?.posts.map((p:any) => <Post key={p?._id} post={p} socket={socket} />)
           )}
         </div>
       </div>
@@ -94,4 +93,3 @@ const Feed: React.FC<FeedProps> = ({ profile, userId, scrollable, socket }) => {
 };
 
 export default Feed;
-

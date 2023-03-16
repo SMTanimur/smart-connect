@@ -73,19 +73,20 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
     }
   };
 
-  const handleUpdateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
-      const { data } = await axios.patch('/users/' + currentUser._id, {
-        ...profileData,
-      });
-      dispatch(updateUser(data));
-      setIsEdit(false);
-      // setRefetch(!refetch);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const handleUpdateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   try {
+  //     const { data } = await axios.patch('/users/' + currentUser._id, {
+  //       ...profileData,
+        
+  //     });
+  //     dispatch(updateUser(data));
+  //     setIsEdit(false);
+  //     // setRefetch(!refetch);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
@@ -168,7 +169,7 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
               ) : (
                 <form
                   className='profile__info-form'
-                  onSubmit={handleUpdateSubmit}
+                  // onSubmit={handleUpdateSubmit}
                 >
                   <input
                     className='mt-1 w-full px-3 py-2 transition duration-200 border border-gray-300 shadow-inner rounded outline-none bg-gray-50 focus:bg-white hover:bg-white'
