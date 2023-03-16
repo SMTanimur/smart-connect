@@ -1,11 +1,4 @@
-import {
-  Home,
-  Profile,
-  Login,
-  Messanger,
-  SinglePost,
-  NotFound,
-} from './pages';
+import { Home, Profile, Login, Messanger, SinglePost, NotFound } from './pages';
 import { ProtectedRoute, SharedLayout } from './components';
 import { Routes, Route } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
@@ -25,27 +18,37 @@ import { useAppSelector } from './hooks';
 import { ServerToClientEvents, ClientToServerEvents } from './interfaces';
 import { ProfileInfoContextProvider } from './context';
 // import useSound from 'use-sound';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 // @ts-ignore
 import sound from './sounds/notification.mp3';
 import axios from 'axios';
 
-axios.defaults.baseURL = 'https://smart-connect-api.onrender.com/api';
+// axios.defaults.baseURL = 'https://smart-connect-api.onrender.com/api';
+axios.defaults.baseURL = 'http://localhost:5000/api';
 axios.defaults.withCredentials = true;
 
 const App = () => {
   // const [playWow] = useSound('/sounds/wow.mp3')
+  const client = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: true,
+      },
+    },
+  });
   const dispatch = useAppDispatch();
   const socket = useRef<Socket<
     ServerToClientEvents,
     ClientToServerEvents
   > | null>(null);
-  const { user, refetch } = useAppSelector((state) => state.user);
+  const { user, refetch } = useAppSelector(state => state.user);
 
   useEffect(() => {
     if (user) {
       socket.current = io('http://localhost:5000/');
       socket?.current?.emit('addUser', user?._id);
-      socket?.current?.on('getUsers', (users) => {
+      socket?.current?.on('getUsers', users => {
         dispatch(setOnlineUsers(users));
       });
       socket?.current?.on('getMessage', () => {
@@ -83,6 +86,9 @@ const App = () => {
   }, [refetch, dispatch]);
 
   return (
+     <div>
+    <QueryClientProvider client={client}>
+      <ReactQueryDevtools initialIsOpen={false}/>
     <Routes>
       <Route path='/' element={<SharedLayout socket={socket} />}>
         <Route
@@ -124,6 +130,8 @@ const App = () => {
       <Route path='/register' element={<Login />} />
       <Route path='*' element={<NotFound />} />
     </Routes>
+    </QueryClientProvider>
+    </div>
   );
 };
 

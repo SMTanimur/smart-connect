@@ -19,7 +19,6 @@ type RightbarProps = {
 };
 
 const Rightbar: React.FC<RightbarProps> = ({ user, socket }) => {
-  console.log(user)
   const [friends, setFriends] = useState<IUser[]>([]);
   const { user: currentUser } = useAppSelector((state) => state.user);
   const navigate = useNavigate();
@@ -47,19 +46,19 @@ const Rightbar: React.FC<RightbarProps> = ({ user, socket }) => {
       ?.map((fr: IFriendRequest) => fr.from?._id)
       .includes(currentUser?._id);
 
-  const { isEdit, profileData, setProfileData, handleChange } =
+  const { isEdit,  handleChange } =
     useProfileInfoContext();
 
-  useEffect(() => {
-    if (setProfileData) {
-      setProfileData({
-        ...profileData,
-        city: user?.city!,
-        from: user?.from!,
-        relationship: user?.relationship!,
-      });
-    }
-  }, [profileData, setProfileData, user]);
+  // useEffect(() => {
+  //   if (setProfileData) {
+  //     setProfileData({
+  //       ...profileData,
+  //       city: user?.city!,
+  //       from: user?.from!,
+  //       relationship: user?.relationship!,
+  //     });
+  //   }
+  // }, [profileData, setProfileData, user]);
 
   // const [onlineFriends, setOnlineFriends] = useState<IUser[]>([]);
 
@@ -194,7 +193,7 @@ const Rightbar: React.FC<RightbarProps> = ({ user, socket }) => {
                 name="city"
                 placeholder=" "
                 id="city"
-                value={profileData.city}
+                value={user?.city}
                 onChange={handleChange}
                 className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border appearance-none shadow-inner
                   focus:outline-none focus:ring-0  peer"
@@ -224,7 +223,7 @@ const Rightbar: React.FC<RightbarProps> = ({ user, socket }) => {
                 name="from"
                 placeholder=" "
                 id="from"
-                value={profileData.from}
+                value={user?.from}
                 onChange={handleChange}
                 className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border appearance-none shadow-inner
                   focus:outline-none focus:ring-0  peer"
@@ -255,7 +254,7 @@ const Rightbar: React.FC<RightbarProps> = ({ user, socket }) => {
                   focus:outline-none focus:ring-0 shadow-inner"
                 name="relationship"
                 id="relationship"
-                value={profileData.relationship}
+                value={user?.relationship}
                 onChange={handleChange}
               >
                 <option value="1">Single</option>
