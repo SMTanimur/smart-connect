@@ -23,6 +23,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 // @ts-ignore
 import sound from './sounds/notification.mp3';
 import axios from 'axios';
+import Register from './pages/Register';
 
 axios.defaults.baseURL = 'https://smart-connect-api.onrender.com/api';
 // axios.defaults.baseURL = 'http://localhost:5000/api';
@@ -127,7 +128,7 @@ const App = () => {
         />
       </Route>
       <Route path='/login' element={<Login />} />
-      <Route path='/register' element={<Login />} />
+      <Route path='/register' element={<Register />} />
       <Route path='*' element={<NotFound />} />
     </Routes>
     </QueryClientProvider>
