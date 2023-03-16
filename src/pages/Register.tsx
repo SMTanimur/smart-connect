@@ -27,11 +27,9 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      const { data } = await axios.post('/auth/register', formState);
-      if (data) {
+       await axios.post('/auth/register', formState);
         navigate('/login')
         setErrors({});
-      }
     } catch (error: any) {
       setErrors(error?.response?.data?.errors);
     }
